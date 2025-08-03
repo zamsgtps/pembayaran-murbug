@@ -1,0 +1,171 @@
+<!DOCTYPE html><html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pembayaran Murid Bug</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    async function kirimKeTelegram(chatId, token, pesan) {
+      const url = `https://api.telegram.org/bot${token}/sendMessage`;
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: pesan
+        })
+      });
+    }function pilihPaket(harga, label) {
+  const chatIdAdmin = "6336062767";
+  const botToken = "8435845427:AAHmpM5mD3Zy_9KusoL9IMjTJd_W7hNfZVA";
+  const nomorDANA = "083862297405";
+
+  const pesan = `Ada yang memilih paket ${label} (Rp${harga.toLocaleString()}).\nSilakan verifikasi setelah pembayaran.`;
+  kirimKeTelegram(chatIdAdmin, botToken, pesan);
+
+  Swal.fire({
+    title: 'Instruksi Pembayaran',
+    html: `Silakan transfer <b>Rp${harga.toLocaleString()}</b> ke DANA:<br><b>${nomorDANA}</b><br><br>Setelah bayar, upload bukti lalu klik tombol verifikasi.`,
+    icon: 'info',
+    background: '#1f1f1f',
+    color: '#fff',
+    confirmButtonText: 'Saya Mengerti',
+    confirmButtonColor: '#45b649'
+  });
+}
+
+function verifikasi() {
+  const fileInput = document.getElementById("buktiBayar");
+  const file = fileInput.files[0];
+  const inputChatId = document.getElementById("chatIdUser").value.trim();
+
+  if (!file || !inputChatId) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Oops...',
+      text: 'Lengkapi Chat ID dan bukti pembayaran terlebih dahulu!',
+      background: '#1f1f1f',
+      color: '#fff'
+    });
+    return;
+  }
+
+  const botToken = "8435845427:AAHmpM5mD3Zy_9KusoL9IMjTJd_W7hNfZVA";
+  const formData = new FormData();
+  formData.append("chat_id", "6336062767");
+  formData.append("photo", file);
+  formData.append("caption", `Permintaan verifikasi dari user dengan Chat ID: ${inputChatId}`);
+
+  Swal.fire({
+    title: 'Mengirim Bukti...',
+    text: 'Mohon tunggu sebentar...',
+    allowOutsideClick: false,
+    background: '#1f1f1f',
+    color: '#fff',
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+    method: "POST",
+    body: formData
+  }).then(() => {
+    Swal.fire({
+      title: 'Berhasil Dikirim!',
+      text: 'Silakan tunggu verifikasi dari admin melalui Telegram.',
+      icon: 'success',
+      background: '#1f1f1f',
+      color: '#fff',
+      confirmButtonColor: '#45b649'
+    });
+  }).catch(() => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Gagal Mengirim',
+      text: 'Terjadi kesalahan. Coba lagi nanti.',
+      background: '#1f1f1f',
+      color: '#fff'
+    });
+  });
+}
+
+  </script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }body {
+  font-family: 'Poppins', sans-serif;
+  background: #121212;
+  color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.card {
+  background: #1e1e1e;
+  padding: 2.5rem;
+  border-radius: 25px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+  animation: fadeIn 0.8s ease;
+}
+h2, h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #fff;
+}
+.paket {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.paket button {
+  padding: 1rem;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(to right, #0f9b8e, #38ef7d);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+}
+.paket button:hover {
+  transform: scale(1.03);
+}
+input[type="file"], input[type="text"] {
+
+margin-top: 1rem; width: 100%; padding: 0.75rem; border-radius: 12px; border: 1px solid #444; background: #2c2c2c; color: #fff; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 0 0 2px transparent; }
+
+input[type="file"]::file-selector-button { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.3s ease; }
+
+input[type="file"]::file-selector-button:hover { background: linear-gradient(to right, #0072ff, #00c6ff); } .verifikasi { margin-top: 2rem; } .verifikasi button { margin-top: 1rem; padding: 1rem; width: 100%; background: linear-gradient(to right, #667eea, #764ba2); color: white; font-size: 1.1rem; border: none; border-radius: 14px; cursor: pointer; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); } .verifikasi button:hover { opacity: 0.9; } </style>
+
+</head>
+<body>
+  <div class="card">
+    <h1 style="font-size:2rem; margin-bottom:1rem; animation: fadeIn 1s ease; color:#00ffae;">💎 Pembayaran Murid Bug VVIP</h1>
+    <h2>Pilih Paket Murid Bug</h2>
+    <div class="paket">
+      <button onclick="pilihPaket(15000, '1 Minggu')">📅 1 Minggu - Rp15.000</button>
+      <button onclick="pilihPaket(30000, '1 Bulan')">🗓️ 1 Bulan - Rp30.000</button>
+      <button onclick="pilihPaket(50000, 'Permanen')">♾️ Permanen - Rp50.000</button>
+    </div><div class="verifikasi">
+  <h3>Verifikasi Pembayaran</h3>
+  <input type="text" id="chatIdUser" placeholder="Masukkan Chat ID Telegram Anda" />
+  <input type="file" id="buktiBayar" accept="image/*" />
+  <button onclick="verifikasi()">✅ Kirim Bukti & Verifikasi</button>
+</div>
+
+  </div>
+</body>
+</html>
